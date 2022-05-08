@@ -8,6 +8,7 @@ build:
 # 	haxe -js C2Controller.js -lib hxnodejs -lib tink_http -main C2Controller
 run:
 	haxe --main C2Controller --interp
-# 	node C2Controller.js
 server:
 	node C2Server.js
+
+
